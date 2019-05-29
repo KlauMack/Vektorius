@@ -30,7 +30,7 @@
 
 ## Realizuotos funkcijos
 
-###vector::operator= copy version
+**vector::operator= copy version**
 ```ruby
 Vector& operator=(const Vector& vec)
 	{
@@ -44,7 +44,7 @@ Vector& operator=(const Vector& vec)
 ```
 - Priskiria vieną vektorių kitam.
 
-###vector::push_back
+**vector::push_back**
 ```ruby
 void push_back(const T& val)
 {
@@ -56,7 +56,7 @@ void push_back(const T& val)
 - Prideda narį į vektoriaus pabaigą
 - Jei `_size` == `_capacity`, kviečiama `grow()` funkcija, kuri padidina `_capacity`
 
-###vector::pop_back()
+**vector::pop_back()**
 ```ruby
 void pop_back()
 {
@@ -67,7 +67,7 @@ void pop_back()
 ```
 - Panaikina paskutinį vektoriaus narį ir sumažina `_size`
 
-###vector::shrink_to_fit
+**vector::shrink_to_fit**
 ```ruby
 void shrink_to_fit()
 	{
@@ -76,7 +76,7 @@ void shrink_to_fit()
 ```
 - Sumažina galimą `limit` atminties vietą, prilygindamas ją užbildytai vektoriaus vietai
 
-###vector::reserve
+**vector::reserve**
 ```ruby
 void reserve(size_type new_cap)
 	{
