@@ -18,7 +18,7 @@ protected:
     Vector<double> nd_;
     double egz_;
     StudentBase() : egz_(0) {}
-    StudentBase(std::string, std::string, Vector<double>&, double);
+    StudentBase(std::string vardas, std::string pavarde, Vector<double>& ND, double egzaminas);
 };
 
 /*! Derived klasė "Studentas" */

@@ -186,7 +186,7 @@ public:
 			limit = data + new_cap;
 		}
 	}
-
+	
 	//vector::clear
 	void clear()
 	{
