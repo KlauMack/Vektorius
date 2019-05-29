@@ -7,21 +7,21 @@
 - `make`
 - `./vector`
 
-## Efektyvumo/spartos analizė (<int>)
+## Efektyvumo/spartos analizė (`<int>`)
 
 |  Vektorius  |    10000    |    100000   |   1000000   |  10000000  | 100000000 |
 | ----------- | ----------- | ----------- | ----------- | ---------- | --------- |
 | std::vector | 0.0002444 s | 0.0027946 s | 0.0197756 s | 0.210041 s | 1.93072 s |
 |    Vector   | 0.0002489 s | 0.0020631 s | 0.0207604 s | 0.223814 s | 2.01185 s |
 
-## Perskirstymas (<int>)
+## Perskirstymas (`<int>`)
 
 |  Vektorius  | 10000 | 100000 | 1000000 | 10000000 | 100000000 |
 | ----------- | ----- | ------ | ------- | -------- | --------- |
 | std::vector |   14  |   17   |    20   |    24    |     27    |
 |    Vector   |   14  |   17   |    20   |    24    |     27    |
 
-## Efektyvumo/spartos analizė (<Studentas>)
+## Efektyvumo/spartos analizė (`<Studentas>`)
 
 |  Vektorius  |    10000    |    100000   |   1000000   |  10000000  |
 | ----------- | ----------- | ----------- | ----------- | ---------- |
