@@ -1,5 +1,12 @@
 # Vektoriaus klasė
 
+## Įdiegimas (Unix kompiuteryje) naudojant `gcc`kompiliatorių 
+
+- `git clone https://github.com/KlauMack/Vektorius.git`
+- `cd Vektorius`
+- `make`
+- `./vector`
+
 ## Efektyvumo/spartos analizė
 
 |  Vektorius  |    10000    |    100000   |   1000000   |  10000000  | 100000000 |
