@@ -42,6 +42,9 @@ void uzpildymas(size_t size) {
 
         Studentas vec2(name, surname, temp, exam);
         v2.push_back(vec2);
+
+        temp.clear();
+        temp.shrink_to_fit();
     }
 
     auto end1 = std::chrono::high_resolution_clock::now();
@@ -91,6 +94,9 @@ void perskirstymas(size_t size) {
 
         Studentas vec2(name, surname, temp, exam);
         v2.push_back(vec2);
+
+        temp.clear();
+        temp.shrink_to_fit();
 
         if (v2.size() == v2.capacity()) {
             totalRealloc++;

@@ -15,20 +15,21 @@ class StudentBase
 protected:
     std::string vardas_;
     std::string pavarde_;
-    Vector<double> nd_;
-    double egz_;
-    StudentBase() : egz_(0) {}
-    StudentBase(std::string vardas, std::string pavarde, Vector<double>& ND, double egzaminas);
+    StudentBase(std::string vardas, std::string pavarde);
 };
 
 /*! Derived klasė "Studentas" */
 
 class Studentas : public StudentBase
 {
+private:
+    Vector<double> nd_;
+    double egz_;
 public:
     Studentas(std::string vardas, std::string pavarde, Vector<double>& ND, double egzaminas) : 
-        StudentBase(vardas, pavarde, ND, egzaminas) {}
-
+        StudentBase(vardas, pavarde), nd_{ND}, egz_{egzaminas} {}
+    void nd ( double n ) { nd_.push_back(n); };
+    void egz ( double n ) { egz_ = n; }
     std::string getVardas() const;
     std::string getPavarde() const;
     double getEgz() const;
