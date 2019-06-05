@@ -32,25 +32,28 @@
 
 **vector::operator= copy version**
 ```ruby
-Vector& operator=(const Vector& vec)
+Vector& operator=(const Vector& x)
+{
+	if (&x == this)
 	{
-		if (&vec != this)
-		{
-			uncreate();
-			create(vec.begin(), vec.end());
-		}
-		return *this;
-	}
+        return *this;
+    }
+	clear();
+	_data = _alloc.allocate(x.end() - x.begin());
+	_size = _capacity = std::uninitialized_copy(x.begin(), x.end(), _data);
+}
 ```
 - Priskiria vieną vektorių kitam.
 
 **vector::push_back**
 ```ruby
-void push_back(const T& val)
+void push_back(const T & value)
 {
-	if (avail == limit)
-		grow();
-	unchecked_append(val);
+	if (_size == _capacity)
+	{
+        grow();
+    }
+    _alloc.construct(_size++, value);
 }
 ```
 - Prideda narį į vektoriaus pabaigą
@@ -60,9 +63,9 @@ void push_back(const T& val)
 ```ruby
 void pop_back()
 {
-	iterator it = avail;
-	alloc.destroy(--it);
-	avail = it;
+    iterator it = _size;
+	_alloc.destroy(--it);
+	_size = it;
 }
 ```
 - Panaikina paskutinį vektoriaus narį ir sumažina `_size`
@@ -70,34 +73,38 @@ void pop_back()
 **vector::shrink_to_fit**
 ```ruby
 void shrink_to_fit()
-	{
-		limit = avail;
-	}
+{
+    iterator temp_data = _alloc.allocate(_size - _data), temp_size, temp_capacity;
+	std::move(_data, _size, temp_data);
+	temp_size = temp_capacity = temp_data + (_size - _data);
+	clear();
+	_data = temp_data;
+	_size = temp_size;
+	_capacity = temp_capacity;
+}
 ```
-- Sumažina galimą `limit` atminties vietą, prilygindamas ją užbildytai vektoriaus vietai
+- Sumažina galimą `_capacity` atminties vietą, prilygindamas ją užbildytai vektoriaus vietai
 
 **vector::reserve**
 ```ruby
-void reserve(size_type new_cap)
+void reserve(size_t size)
+{
+	if (size > _capacity)
 	{
-		if (new_cap > capacity())
-		{
-			iterator new_data = alloc.allocate(new_cap);
-			iterator new_avail = std::uninitialized_copy(data, avail, new_data);
-			uncreate();
-			data = new_data;
-			avail = new_avail;
-			limit = data + new_cap;
-		}
-	}
+        iterator temp_data = _alloc.allocate(size);
+        iterator temp_size = std::uninitialized_copy(_data, _size, temp_data);
+        clear();
+         _data = temp_data;
+         _size = temp_size;
+         _capacity = _data + size;
+    }
+}
 ```
 - Palieka atmintyje vietos
 
 ## Funkcijos, kurios dar nėra realizuotos
 - **member functions**
 ```shell
-    vector::assign fill version
-	vector::assign range version
 	vector::assign initializer list version
     vector::data
 	vector::emplace
@@ -112,7 +119,6 @@ void reserve(size_type new_cap)
 	vector::insert initializer list version
 	vector::max_size
     vector::operator = initializer list version
-    vector::swap
 ```
 - **non-member overloaded functions**
 ```shell
