@@ -3,12 +3,10 @@
 */
 #include "student.h"
 
-StudentBase::StudentBase(std::string vardas, std::string pavarde, Vector<double>& ND, double egzaminas)
+StudentBase::StudentBase(std::string vardas, std::string pavarde)
 {
     vardas_ = vardas;
     pavarde_ = pavarde;
-    nd_ = ND;
-    egz_ = egzaminas;
 }
 
 std::string Studentas::getVardas() const

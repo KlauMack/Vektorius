@@ -2,7 +2,7 @@ CXX = g++
 CC = gcc
 
 all:	main.o student.o
-	g++ main.o student.o -o tipas
+	g++ main.o student.o -o vector
 
 main.o: main.cpp functions.h Vector.h
 	g++ -c main.cpp
@@ -14,4 +14,4 @@ test:	all
 	./tipas
 
 clean:
-	rm -f *.o tipas
+	rm -f *.o *.txt vector

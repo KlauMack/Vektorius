@@ -43,7 +43,7 @@ int main()
 
     std::string input2 = "vardas";
 
-    //std::cout << "Kaip norėtumėte surušiuoti studentų sąrašą - pagal vardą (vardas) ar pagal pavardę (pavarde)? (vardas/pavarde) "; std::cin >> input2;
+    std::cout << "Kaip norėtumėte surušiuoti studentų sąrašą - pagal vardą (vardas) ar pagal pavardę (pavarde)? (vardas/pavarde) "; std::cin >> input2;
     
     if (input2 == "vardas")
         std::sort(students.begin(), students.end(), operator<);
@@ -58,7 +58,7 @@ int main()
     }
 
     std::string input3 = "vid";
-    //std::cout << "Ką norėtumėte matyti - vidurkį (vid) ar medianą (med)? (vid/med) "; std::cin >> input3;
+    std::cout << "Ką norėtumėte matyti - vidurkį (vid) ar medianą (med)? (vid/med) "; std::cin >> input3;
     if (input3 == "vid")
     {
         vidurkis(students);

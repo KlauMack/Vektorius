@@ -103,8 +103,6 @@ void readGenerated(Vector<Studentas>& newVec)
         }
         inFile >> exam;
 
-        temp.shrink_to_fit();
-
         Studentas newStudent(name, surname, temp, exam);
         newVec.push_back(newStudent);
 
@@ -174,12 +172,10 @@ void readUser(Vector<Studentas>& newVec)
             exit(1);
         }
 
-        temp.shrink_to_fit();
-
         Studentas newStudent(name, surname, temp, exam);
         newVec.push_back(newStudent);
 
-        temp.uncreate();
+        temp.clear();
         temp.shrink_to_fit();
 
         std::cout << "Vardas (spauskite 0, jei norite baigti): "; std::cin >> name;
@@ -203,7 +199,6 @@ void vidurkis(Vector<Studentas> &newVec)
     for (unsigned int i = 0; i < vecSize; ++i)
     {
         int suma = 0;
-        std::cout << newVec[i].getVardas() << std::endl; //?
 
         for (int x = 0; x < newVec[i].getSizeOfNd(); x++)
         {

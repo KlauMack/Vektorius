@@ -1,4 +1,4 @@
-/*! file student.h
+/*! \file student.h
     Failas saugantis Base ir Derived klases.
 */
 #ifndef STUDENT_H
@@ -15,19 +15,21 @@ class StudentBase
 protected:
     std::string vardas_;
     std::string pavarde_;
-    Vector<double> nd_;
-    double egz_;
-    StudentBase() : egz_(0) {}
-    StudentBase(std::string, std::string, Vector<double> &, double);
+    StudentBase(std::string vardas, std::string pavarde);
 };
 
 /*! Derived klasė "Studentas" */
 
 class Studentas : public StudentBase
 {
+private:
+    Vector<double> nd_;
+    double egz_;
 public:
-    Studentas(std::string vardas, std::string pavarde, Vector<double> &ND, double egzaminas) : StudentBase(vardas, pavarde, ND, egzaminas) {}
-
+    Studentas(std::string vardas, std::string pavarde, Vector<double>& ND, double egzaminas) : 
+        StudentBase(vardas, pavarde), nd_{ND}, egz_{egzaminas} {}
+    void nd ( double n ) { nd_.push_back(n); };
+    void egz ( double n ) { egz_ = n; }
     std::string getVardas() const;
     std::string getPavarde() const;
     double getEgz() const;
@@ -36,24 +38,24 @@ public:
     void sortND();
 };
 
-inline bool operator<(Studentas s1, Studentas s2)
+inline bool operator <(Studentas s1, Studentas s2)
 {
-    return s1.getVardas() < s2.getVardas();
+	return s1.getVardas() < s2.getVardas();
 }
 
-inline bool operator>(Studentas s1, Studentas s2)
+inline bool operator >(Studentas s1, Studentas s2)
 {
-    return s1.getVardas() < s2.getVardas();
+	return s1.getVardas() < s2.getVardas();
 }
 
-inline bool operator<=(Studentas s1, Studentas s2)
+inline bool operator <=(Studentas s1, Studentas s2)
 {
-    return s1.getVardas() < s2.getVardas();
+	return s1.getVardas() < s2.getVardas();
 }
 
-inline bool operator>=(Studentas s1, Studentas s2)
+inline bool operator >=(Studentas s1, Studentas s2)
 {
-    return s1.getVardas() < s2.getVardas();
+	return s1.getVardas() < s2.getVardas();
 }
 
 #endif
