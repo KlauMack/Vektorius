@@ -1,314 +1,180 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include <iostream>
 #include <iterator>
 #include <memory>
-#include <exception>
-#include <iostream>
+#include <limits>
 
 template <class T>
-class Vector
-{
-public:
-// Member types
 
-	typedef T value_type;
-	typedef size_t size_type;
-	typedef T& reference;
-	typedef const T& const_reference;
-	typedef T* pointer;
-	typedef const T* const_pointer;
-	typedef T* iterator;
-	typedef const T* const_iterator;
-	typedef std::reverse_iterator <iterator> reverse_iterator;
-	typedef std::reverse_iterator <const_iterator> const_reverse_iterator;
+class Vector{
+    public:
+    typedef T& reference;
+    typedef const T& const_reference;
+    typedef T* iterator;
+    typedef const T* const_iterator;
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-//Constructors
-	//Default constructor
-	Vector() { create(); }
-
-	//Fill constructor
-	explicit Vector(size_type n, const T& val = T{}) { create(n, val); }
-
-	//Copy constructor
-	Vector(const Vector& vec) { create(vec.begin(), vec.end()); }
-
-//Destructor
-	~Vector() { uncreate(); }
-
-//Member functions
-	//vector::operator= copy version
-	Vector& operator=(const Vector& vec)
-	{
-		if (&vec != this)
-		{
-			uncreate();
-			create(vec.begin(), vec.end());
+    Vector() {
+        _data = _capacity = _size = nullptr;
+        }
+    Vector(size_t size) {
+        _data = _alloc.allocate(size);
+        _size = _capacity = _data + size;
+        }
+    Vector(size_t size, const T& value) {
+        _data = _alloc.allocate(size);
+        _size = _capacity = _data + size;
+        std::uninitialized_fill(_data, _size, value);
+        }
+    Vector(const Vector & x) {
+			_data = _alloc.allocate(x.end() - x.begin());
+			_size = _capacity = std::uninitialized_copy(x.begin(), x.end(), _data);
 		}
-		return *this;
-	}
+    Vector(std::initializer_list<T> list){
+            _data = _alloc.allocate(list.end() - list.begin());
+			_size = _capacity = std::uninitialized_copy(list.begin(), list.end(), _data);
+        }
+    Vector(iterator first, iterator last) {
+            _data = _alloc.allocate(last - first);
+		    _size = _capacity = std::uninitialized_copy(first, last, _data);
+        }
+    ~Vector(){ clear(); }
 
-	//vector::operator= move version
-	Vector& operator=(Vector&& vec) noexcept
-	{
-		if (&vec != this)
-			uncreate();
+    iterator begin() noexcept { return _data; }
+    const_iterator begin() const noexcept { return _data; }
+    iterator end() noexcept { return _size; }
+    const_iterator end() const noexcept { return _size; }
+    reverse_iterator rbegin() noexcept { return reverse_iterator(_size); }
+    const_reverse_iterator rbegin() const noexcept  { return reverse_iterator(_size); }
+    reverse_iterator rend() noexcept { return reverse_iterator(_data); }
+    const_reverse_iterator rend() const noexcept { return reverse_iterator(_data); }
+    
+    size_t size() const { return _size - _data; }
+    size_t max_size() const {  return std::numeric_limits<size_t>::max(); }
+    size_t capacity() const { return _capacity - _data; }
+    bool empty() const { return _size - _data == 0; }
 
-		std::swap(vec.data, data);
-		std::swap(vec.avail, avail);
-		std::swap(vec.limit, limit);
-	}
-
-	//vector::push_back
-	void push_back(const T& val)
-	{
-		if (avail == limit)
-			grow();
-		unchecked_append(val);
-	}
-
-	//vector::operator[]
-	T& operator[](size_type i)
-	{
-		try {
-			if (i > size() || i < 0) throw std::out_of_range("reached limit of the operator[]");
+	void resize(size_t size) {
+		if (size == 0) {
+            clear();
+            return;
+        }
+		if (size == _capacity - _data){
+            return;
+        }
+		iterator temp_data = _alloc.allocate(size);
+		iterator temp_size, temp_capacity, end;
+		if (size < _size - _data){
+            end = _data + size;
+        }
+		else{
+            end = _size;
+        }
+		std::move(_data, end, temp_data);
+		temp_size = temp_data + (end - _data);
+		temp_capacity = temp_data + size;
+		while (temp_size != temp_capacity) {
+			*(temp_size) = T();
+			temp_size ++;
 		}
-		catch (const std::out_of_range& e)
-		{
-			std::cout << e.what();
-			exit(0);
-		}
-
-		return data[i];
-	}
-	const T& operator[](size_type i) const
-	{
-		try {
-			if (i > size() || i < 0) throw std::out_of_range("reached limit of the operator[]");
-		}
-		catch (const std::out_of_range& e)
-		{
-			std::cout << e.what();
-			exit(0);
-		}
-
-		return data[i];
+		clear();
+		_data = temp_data;
+		_size = temp_size;
+		_capacity = temp_capacity;
 	}
 
-	//vector::size
-	size_type size() const { return avail - data; }
+    void reserve(size_t size) {
+        if (size > _capacity) {
+            iterator temp_data = _alloc.allocate(size);
+            iterator temp_size = std::uninitialized_copy(_data, _size, temp_data);
+            clear();
+            _data = temp_data;
+            _size = temp_size;
+            _capacity = _data + size;
+        }
+    }
+    void shrink_to_fit(){
+        iterator temp_data = _alloc.allocate(_size - _data), temp_size, temp_capacity;
+		std::move(_data, _size, temp_data);
+		temp_size = temp_capacity = temp_data + (_size - _data);
+		clear();
+		_data = temp_data;
+		_size = temp_size;
+		_capacity = temp_capacity;
+    }
 
-	//vector::capacity
-	size_type capacity() const { return limit - data; }
+    Vector& operator=(const Vector& x){
+        if (&x == this){
+           return *this;
+        }
+		clear();
+		_data = _alloc.allocate(x.end() - x.begin());
+		_size = _capacity = std::uninitialized_copy(x.begin(), x.end(), _data);
+    }
+    reference operator[] (size_t n){ return _data[n]; }
+    const_reference operator[] (size_t n) const { return _data[n]; }
+    reference front() { return _data[0]; }
+    const_reference front() const { return _data[0]; }
+    reference back() { return _data[size]; }
+    const_reference back() const { return _data[size]; }
+    T* data() noexcept { return _data; }
+    const T* data() const noexcept {return _data; }
 
-	//vector::empty
-	bool empty() const
-	{
-		if (data == nullptr)
-			return true;
-		return false;
-	}
+    void assign (size_t size, const T& value){
+       clear();
+		_data = _alloc.allocate(size);
+		_size = _capacity = _data + size;
+		std::uninitialized_fill(_data, _size, value);
+    }
 
-	//vector::begin
-	iterator begin() { return data; }
-	//vector::cbegin
-	const_iterator begin() const { return data; }
+    void assign (iterator first, iterator last) {
+        _data = _alloc.allocate(last - first);
+	    _size = _capacity = std::uninitialized_copy(first, last, _data);
+    }
 
-	//vector::end
-	iterator end() { return limit; }
-	//vector::cend
-	const_iterator end() const { return limit; }
-
-	//vector::rbegin
-	iterator rbegin()
-	{
-		iterator it = limit;
-		return --it;
-	}
-	//vector::crbegin
-	const_iterator rbegin() const
-	{
-		iterator it = limit;
-		return --it;
-	}
-
-	//vector::rend
-	iterator rend()
-	{
-		iterator it = data;
-		return ++it;
-	}
-	//vector::crend
-	const_iterator rend() const
-	{
-		iterator it = data;
-		return ++it;
-	}
-
-	//vector::front
-	T& front()
-	{
-		return *data;
-	}
-
-	//vector::back
-	T& back()
-	{
-		iterator it = avail;
-		return *(--it);
-	}
-
-	//vector::at
-	T& at(size_type pos)
-	{
-		try {
-			if (size() <= pos || pos < 0) throw std::out_of_range("Out of range");
-		}
-		catch (const std::out_of_range& e)
-		{
-			std::cout << e.what();
-			exit(0);
-		}
-
-		return data[pos];
-	}
-
-	//vector::reserve
-	void reserve(size_type new_cap)
-	{
-		if (new_cap > capacity())
-		{
-			iterator new_data = alloc.allocate(new_cap);
-			iterator new_avail = std::uninitialized_copy(data, avail, new_data);
-			uncreate();
-			data = new_data;
-			avail = new_avail;
-			limit = data + new_cap;
+	void clear() {
+		if (_data) {
+			iterator it = _capacity;
+			while (it != _data) _alloc.destroy(--it);
+			_alloc.deallocate(_data, _size - _data);
+			_data = _size = _capacity = nullptr;
 		}
 	}
-
-	//vector::clear
-	void clear()
-	{
-		iterator new_data = alloc.allocate(capacity());
-		size_type cap = capacity();
-		uncreate();
-		limit = new_data + cap;
-		data = avail = new_data;
+    
+	void push_back(const T & value) {
+		if (_size == _capacity){
+            grow();
+        }
+        _alloc.construct(_size++, value);
 	}
 
-	//vector::pop_back()
-	void pop_back()
-	{
-		iterator it = avail;
-		alloc.destroy(--it);
-		avail = it;
-	}
+    void pop_back(){
+        iterator it = _size;
+	    _alloc.destroy(--it);
+		_size = it;
+    }
 
-	//vector::shrink_to_fit
-	void shrink_to_fit()
-	{
-		limit = avail;
-	}
+    void swap(Vector& x) {
+        std::swap(_size, x._size);
+        std::swap(_capacity, x._capacity);
+        std::swap(_data, x._data);
+    }
 
-	//vector::resize
-	void resize(size_type count, value_type value = T())
-	{
-		if (count < size())
-		{
-			size_type new_size = count;
-			iterator new_data = alloc.allocate(new_size);
-			iterator new_avail = std::uninitialized_copy(data, data + count, new_data);
-			iterator new_limit = new_data + capacity();
-
-			uncreate();
-
-			data = new_data;
-			avail = new_avail;
-			limit = new_limit;
-		}
-		else if (count > size())
-		{
-			size_type new_size = count;
-			iterator new_data = alloc.allocate(new_size);
-			iterator it = std::uninitialized_copy(data, avail, new_data);
-			std::uninitialized_fill(it, new_data + new_size - 1, value);
-			iterator new_avail = new_data + new_size;
-			iterator new_limit;
-			if (capacity() < new_avail - new_data)
-			{
-				new_limit = new_avail;
-			}
-			else
-			{
-				new_limit = new_data + capacity();
-			}
-			uncreate();
-
-			data = new_data;
-			avail = new_avail;
-			limit = new_limit;
-		}
-	}
-
-//Non-member overloaded functions
-	//operator ==
-	/*bool operator==(const Vector &vec1, const Vector &vec2)
-	{
-		return vec1 == vec2
-	}*/
 private:
-	iterator data;
-	iterator avail;
-	iterator limit;
-
-	std::allocator<T> alloc;
-
-	void create()
-	{
-		data = avail = limit = nullptr;
-	}
-	void create(size_type n, const T& val)
-	{
-		data = alloc.allocate(n);
-		limit = avail = data + n;
-		std::uninitialized_fill(data, limit, val);
-	}
-	void create(const_iterator i, const_iterator j)
-	{
-		data = alloc.allocate(j - i);
-		limit = avail = std::uninitialized_copy(i, j, data);
-	}
-
-	void uncreate()
-	{
-		if (data)
-		{
-			iterator it = avail;
-			while (it != data)
-				alloc.destroy(--it);
-			alloc.deallocate(data, limit - data);
-		}
-		data = limit = avail = nullptr;
-	}
-
+    iterator _size, _capacity, _data;
+    std::allocator<T> _alloc;
 	void grow()
 	{
-		size_type new_size;
-		new_size = std::max(2 * (limit - data), ptrdiff_t(1));
-
-		iterator new_data = alloc.allocate(new_size);
-		iterator new_avail = std::uninitialized_copy(data, avail, new_data);
-
-		uncreate();
-
-		data = new_data;
-		avail = new_avail;
-		limit = data + new_size;
-	}
-	void unchecked_append(const T& val)
-	{
-		alloc.construct(avail++, val);
+		size_t size = std::max(2 * (_capacity - _data), ptrdiff_t(1));
+		iterator temp_data = _alloc.allocate(size);
+		iterator temp_size = std::uninitialized_copy(_data, _size, temp_data);
+		clear();
+		_data = temp_data;
+		_size = temp_size;
+		_capacity = _data + size;
 	}
 };
 
